@@ -1,0 +1,45 @@
+TODO
+
+- Bug: Plot filtered Data does only show linear sline now, if fit-data is selected
+        --> fix in apply_filters calculating the fit dataset should be triggered by linear spine radiobutton instead of fit data dropdown!
+- Bug: Extract Key Values is not working anymore, probalbly because of apply_filters now returning a tuple!
+- Refactor store and save filtered data, because they have a lot of repetitive code.
+- Maybe better for apply_filters to return two tables, if, that would allow plot_filtered data to work based on the same data as store and save filtered data
+
+
+- suff: for fit data: add plot_type suffix (because right now datasets with the same name contian different columns!) 
+- plot filtered data and store/save filtered data should use the same data basis, so users dont get confused !!
+
+- use radiobuttons for "select charge half cycle" and "select discharge halfcycle" instead of radiobuttons to prevent creating empty datsets. 
+- then fix storing and saving of fit data !!!! important for my idea! 
+- Maybe refactor apply filters a bit, e.g. use new method "_generate_linear_spline_fit_data".
+
+DONE
+- next fix suffix to include stepsize of linear fit.
+- Bugfix: When different step size is selected, step size in dataset is always the same.
+- Bugfix: When selecting different plot type the always t vs U data gets stored
+- Bugfix: If Q-U plot is selected fit data now uses Ah-cyc-charge0 or Ah-cyc-discharge-0 depending on the selected filter
+
+
+
+Ideas: 
+    - Project log: To make the "clicking" Program "repeatable" and maybe add "scripts/macros" later
+    - Plot browser and "plot export" --> "plot export seems more important" 
+    - in databrowser show "dataset history" --> shows name of basic dataset and all the modifications applied to it.  
+
+
+- error is in data_management line 698:     def _generate_linear_spline_fit_data(self, dataset):
+    the method is completly wrongly defined!
+
+- maybe we do not need compute absolute cycle anymore?
+- 1 bug. After selecting abs cycle, the cycle selection dropdown is not updating its options to the new abs_cycle column
+
+    fix: toggle cycle_dropdown on selection of abs_cycle on cycle_column_dropdown
+        to update table from abs_cycle instead of Cyc-Count
+
+
+
+lets add a new feature "SelectDataType": It should work like that: Lets add a dropdown menu "data_type_dropdown" right next to "store filtered data button". It should be deactivated first and should show "modified data". The other option should be fit data. It should only be activated if "linear spline" button is activated. And be deactivated and set back to "modified data" if "linear spline" button is deactivated again. If "modified data" is selected save and store filtered data should behave like now. If "linear spline" is activated instead, a fit dataset is created and saved or stored in the databrowser. In this case an additional sufix is added: "_FitData_linSpline". Here is my full codebase atm. 
+
+
+

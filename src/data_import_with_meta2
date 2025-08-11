@@ -1,0 +1,87 @@
+import os
+import pandas as pd
+
+def import_data_with_metadata(file_path, metadata_df):
+    """
+    Imports data from a file and enriches it with metadata from an Excel file.
+    
+    Args:
+        file_path (str): Path to the data file.
+        metadata_df (pd.DataFrame): DataFrame containing metadata for tests.
+    
+    Returns:
+        pd.DataFrame: The enriched DataFrame with metadata included.
+    """
+    # Extract the filename to match with metadata
+    filename = os.path.basename(file_path).strip().lower()
+    
+    # Normalize metadata column for consistent matching
+    metadata_df['datafile_full'] = metadata_df['datafile_full'].str.strip().str.lower()
+    
+    # Match the metadata row for this file
+    metadata_row = metadata_df[metadata_df['datafile_full'] == filename]
+    if metadata_row.empty:
+        print(f"Warning: No metadata found for file: {filename}")
+        return None
+    
+    # Extract test ID and other metadata
+    test = metadata_row['test'].values[0]  # Adjust column name based on your metadata file
+    testplan = metadata_row['testplan'].values[0]  # Adjust column name based on your metadata file
+    cell = metadata_row['cell'].values[0]    # Adjust column name based on your metadata file
+    
+    # Read the data file (adjust to your file structure)
+    data = pd.read_csv(file_path, skiprows=12, delimiter=',', encoding='utf-8', on_bad_lines='skip')
+    
+    # Rename columns for convenience
+    data = data.rename(columns=lambda x: x.strip())
+    columns_to_rename = {
+        'Time[h]': 'Time',
+        'U[V]': 'Voltage',
+        'I[A]': 'Current',
+        'Ah[Ah]': 'Charge_Ah',
+        'Wh[Wh]': 'Energy_Wh',
+        'T1[°C]': 'Temperature'
+    }
+    data = data.rename(columns=columns_to_rename)
+    
+    # Add metadata as columns
+    data['test'] = test
+    data['testplan'] = testplan
+    data['cell'] = cell
+    
+    return data
+
+# Path to the metadata file
+metadata_file = "data/cells_meta_2.xlsx"
+
+# Load metadata sheet
+metadata_df = pd.read_excel(metadata_file, sheet_name="tests")
+print(metadata_df.columns)  # Debug: Inspect columns in the metadata file
+
+# Directory containing data files
+data_folder = "data/"
+
+# List all data files
+files = [f for f in os.listdir(data_folder) if f.endswith(".txt")]
+print(files)
+
+# Process each file
+for file in files:
+    file_path = os.path.join(data_folder, file)
+    enriched_data = import_data_with_metadata(file_path, metadata_df)
+    if enriched_data is not None:  # Skip files with no matching metadata
+        print(f"Enriched Data for {file}:")
+        print(enriched_data.head())
+        print("\n")
+
+output_folder = "processed_data/"
+os.makedirs(output_folder, exist_ok=True)
+
+for file in files:
+    file_path = os.path.join(data_folder, file)
+    enriched_data = import_data_with_metadata(file_path, metadata_df)
+    if enriched_data is not None:  # Skip files with no matching metadata
+        output_path = os.path.join(output_folder, f"processed_{file}")
+        enriched_data.to_csv(output_path, index=False)
+        print(f"Enriched data saved to {output_path}")
+

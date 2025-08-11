@@ -1,0 +1,27 @@
+import tkinter as tk
+from tkinter import filedialog
+
+def select_file(prompt):
+    """
+    Opens a file dialog to select a file and returns the selected file path.
+    
+    Args:
+        prompt (str): Message to display in the dialog window title.
+    
+    Returns:
+        str: Path to the selected file.
+    """
+    # Create a hidden Tkinter root window
+    root = tk.Tk()
+    root.withdraw()  # Hide the root window
+    
+    # Open the file dialog
+    file_path = filedialog.askopenfilename(title=prompt, filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")])
+    return file_path
+
+# Example usage
+cathode_file = select_file("Select the dataset for the cathode")
+anode_file = select_file("Select the dataset for the anode")
+
+print("Cathode file selected:", cathode_file)
+print("Anode file selected:", anode_file)
